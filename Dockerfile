@@ -6,8 +6,6 @@ ARG URL=http://download.pureftpd.org/pub/pure-ftpd/releases/pure-ftpd-$PUREFTPD_
 ENV PUBLIC_HOST localhost
 ENV MIN_PASV_PORT 30000
 ENV MAX_PASV_PORT 30009
-ENV UID 1000
-ENV GID 1000
 
 RUN set -ex && \ 
 	apk add --no-cache --virtual .build-deps \ 
@@ -34,18 +32,8 @@ RUN set -ex && \
 	rm -rf /tmp/* && \ 
 	apk del .build-deps 
 
-COPY entrypoint.sh /usr/bin/entrypoint.sh 
-
-VOLUME /home/ftpuser /etc/pureftpd 
-
 EXPOSE 21 $MIN_PASV_PORT-$MAX_PASV_PORT 
-
-ENTRYPOINT ["/usr/bin/entrypoint.sh"] 
 
 CMD /usr/sbin/pure-ftpd \ 
 	-P $PUBLIC_HOST \
-	-p $MIN_PASV_PORT:$MAX_PASV_PORT \
-	-l puredb:/etc/pureftpd/pureftpd.pdb \
-	-E \
-	-j \
-	-R
+	$ADDED_FLAGS
